@@ -1,0 +1,15 @@
+// .sequelizerc
+
+const path = require('path');
+const env = process.env.NODE_ENV || 'development';
+
+const dbPath = path.resolve('src');
+
+module.exports = {
+  env,
+  debug: env === 'development',
+  config: path.resolve('sequelize.config.js'),
+  'models-path': path.resolve(dbPath, 'models'),
+  'migrations-path': path.resolve(dbPath, 'migrations'),
+  'seeders-path': path.resolve(dbPath, 'seeders'),
+};

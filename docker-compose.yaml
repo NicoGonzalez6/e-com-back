@@ -1,0 +1,42 @@
+version: "3.5"
+
+networks:
+  users-api:
+
+services:
+  users-db:
+    image: postgres
+    container_name: users-db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: abc123
+      POSTGRES_DB: users-api
+    expose:
+      - "5435"
+    networks:
+      - users-api
+    ports:
+      - "5435:5432"
+  users-api:
+    build:
+      context: ./users-api/
+      dockerfile: ./dockerfile
+    container_name: users-api
+    volumes:
+      - ./data:/var/lib/postgresql/data
+    environment:
+      - DB_HOST=host.docker.internal
+      - DB_PASSWORD=abc123
+      - DB_USER=postgres
+      - DB_NAME=users-api
+      - DB_PORT=5435
+      - PORT=3999
+    depends_on:
+      - users-db
+    networks:
+      - users-api
+    ports:
+      - "3999:3999"
+
+volumes:
+  app-volume:
