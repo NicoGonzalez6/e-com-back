@@ -225,7 +225,7 @@ export class UploadServices {
 
   //delete service
   async deleteImages(product_id: number, user_id: string, isAdmin: boolean) {
-    let product = await this.productsModel.findOne({
+    const product = await this.productsModel.findOne({
       where: {
         id: product_id,
       },

@@ -18,6 +18,8 @@ services:
     ports:
       - "5435:5432"
   users-api:
+    env_file:
+      - .env
     build:
       context: ./users-api/
       dockerfile: ./dockerfile
@@ -26,10 +28,10 @@ services:
       - ./data:/var/lib/postgresql/data
     environment:
       - DB_HOST=host.docker.internal
-      - DB_PASSWORD=abc123
-      - DB_USER=postgres
-      - DB_NAME=users-api
-      - DB_PORT=5435
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_USER=${DB_USER}
+      - DB_NAME=${DB_NAME}
+      - DB_PORT=${DB_PORT}
       - PORT=3999
     depends_on:
       - users-db

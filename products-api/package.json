@@ -11,7 +11,9 @@
     "migrate": "cd libs/database && npx sequelize-cli db:migrate",
     "migrate:undo": "cd libs/database && npx sequelize-cli db:migrate:undo",
     "seeds": "cd libs/database && npx sequelize-cli db:seed:all",
-    "dropdb": "cd libs/database && npx sequelize-cli db:drop"
+    "dropdb": "cd libs/database && npx sequelize-cli db:drop",
+    "cleandb": "cd libs/database && npx sequelize-cli db:drop && npx sequelize-cli db:create",
+    "populatedb": "cd libs/database && npx sequelize-cli db:migrate && npx sequelize-cli db:seed:all"
   },
   "private": true,
   "dependencies": {

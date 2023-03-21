@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Injectable, CanActivate, ExecutionContext } from '@nestjs/common';
 import { CognitoServices } from '../services/cognito.services';
 import { AuthenticatedRequest } from '../../definitions';
@@ -6,7 +7,9 @@ export class CognitoGuard implements CanActivate {
   constructor(private readonly cognitoService: CognitoServices) {}
 
   async canActivate(context: ExecutionContext) {
-    const request = context.switchToHttp().getRequest<AuthenticatedRequest>();
+    const request = context
+      .switchToHttp()
+      .getRequest<AuthenticatedRequest | any>();
 
     try {
       const decodedJwt = await this.cognitoService.verifyHeaders(

@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable prefer-const */
 import {
   Injectable,
   NotFoundException,
@@ -22,18 +24,27 @@ export class ProductsServices {
     category_id: string,
     subcategory_id: string,
     current_page: string,
-    order_by: string,
+    order_by = 'ASC',
     user_id: string
   ) {
-    let params = {
-      where: {
-        product_name: {
-          [Op.like]: `%${product_name.toLocaleLowerCase()}%`,
+    let params = undefined;
+
+    if (product_name) {
+      params = {
+        where: {
+          product_name: {
+            [Op.like]: `%${product_name?.toLocaleLowerCase()}%`,
+          },
         },
-      },
-      offset: 20 * +current_page,
-      limit: 20,
-    };
+        offset: 20 * +current_page,
+        limit: 20,
+      };
+    } else {
+      params = {
+        offset: 20 * +current_page,
+        limit: 20,
+      };
+    }
 
     if (category_id) {
       params['where']['product_category_id'] = parseInt(category_id);
@@ -85,7 +96,7 @@ export class ProductsServices {
   }
 
   async getSingle(id: number) {
-    let product = (await this.productsModel.findOne({
+    const product = (await this.productsModel.findOne({
       where: {
         id: id,
       },

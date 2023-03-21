@@ -1,4 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { IsNotEmpty } from 'class-validator';
 
 export class GetProductDto {
   @ApiProperty({
@@ -20,7 +21,8 @@ export class GetAllProducts {
     description: 'Subcategory_id id',
   })
   subcategory_id: string;
-  @ApiPropertyOptional({
+  @IsNotEmpty()
+  @ApiProperty({
     description: 'current page',
   })
   current_page: string;
