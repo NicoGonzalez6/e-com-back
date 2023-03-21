@@ -25,7 +25,7 @@ export class GetAllProducts {
   @ApiProperty({
     description: 'current page',
   })
-  current_page: string;
+  current_page: number;
   @ApiPropertyOptional({
     description: 'user id',
   })

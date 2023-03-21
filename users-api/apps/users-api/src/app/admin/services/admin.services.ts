@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { Users } from '@users-api/database';
 import { Op } from 'sequelize';
@@ -17,9 +21,15 @@ export class AdminServices {
   async getAllUsers(
     role: string,
     user_name: string,
-    page: number
+    page = 1
   ): Promise<getAllUserI> {
+    if (page < 1) throw new BadRequestException('page cannot be less than 1');
+
+    const total_users = 15;
+
     let users = undefined;
+
+    let total_pages = undefined;
 
     if (role) {
       users = await this.usersModel.findAll({
@@ -31,10 +41,25 @@ export class AdminServices {
         },
 
         order: [['name', 'ASC']],
-        offset: 20 * page,
-        limit: 20,
+        offset: total_users * (page - 1),
+        limit: total_users,
       });
-      return { total_users: users.length, current_page: +page, users: users };
+
+      total_pages = await this.usersModel.count({
+        where: {
+          user_role_id: +role,
+          name: {
+            [Op.like]: `%${user_name}%`,
+          },
+        },
+      });
+
+      return {
+        total_users: users.length,
+        current_page: +page,
+        total_pages: Math.ceil(total_pages / total_users),
+        users: users,
+      };
     } else {
       users = await this.usersModel.findAll({
         where: {
@@ -42,13 +67,25 @@ export class AdminServices {
             [Op.like]: `%${user_name}%`,
           },
         },
-
         order: [['name', 'ASC']],
-        offset: 20 * page,
-        limit: 20,
+        offset: total_users * (page - 1),
+        limit: total_users,
       });
 
-      return { total_users: users.length, current_page: +page, users: users };
+      total_pages = await this.usersModel.count({
+        where: {
+          name: {
+            [Op.like]: `%${user_name}%`,
+          },
+        },
+      });
+
+      return {
+        total_users: users.length,
+        current_page: +page,
+        total_pages: Math.ceil(total_pages / total_users),
+        users: users,
+      };
     }
   }
 

@@ -4,30 +4,34 @@ import {
   Injectable,
   NotFoundException,
   ForbiddenException,
+  BadRequestException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { Products } from '@products-api/database';
 import { Op } from 'sequelize';
 import { CreateProductDto } from '../dtos';
-import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class ProductsServices {
   constructor(
     @InjectModel(Products)
-    private productsModel: typeof Products,
-    private configService: ConfigService
+    private productsModel: typeof Products
   ) {}
 
   async getAll(
     product_name: string,
     category_id: string,
     subcategory_id: string,
-    current_page: string,
+    current_page = 1,
     order_by = 'ASC',
     user_id: string
   ) {
+    if (current_page < 1)
+      throw new BadRequestException('current_page cannot be less than 1');
+
+    const total_products = 15;
     let params = undefined;
+    let total_pages = undefined;
 
     if (product_name) {
       params = {
@@ -36,14 +40,22 @@ export class ProductsServices {
             [Op.like]: `%${product_name?.toLocaleLowerCase()}%`,
           },
         },
-        offset: 20 * +current_page,
-        limit: 20,
+        offset: total_products * (current_page - 1),
+        limit: total_products,
       };
+      total_pages = await this.productsModel.count({
+        where: {
+          product_name: {
+            [Op.like]: `%${product_name?.toLocaleLowerCase()}%`,
+          },
+        },
+      });
     } else {
       params = {
-        offset: 20 * +current_page,
-        limit: 20,
+        offset: total_products * (current_page - 1),
+        limit: total_products,
       };
+      total_pages = await this.productsModel.count();
     }
 
     if (category_id) {
@@ -65,6 +77,7 @@ export class ProductsServices {
     return {
       total_products: products.length,
       current_page: +current_page,
+      total_pages: Math.ceil(total_pages / total_products),
       products,
     };
   }
